@@ -7,376 +7,47 @@
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#bb86fc">
     <link rel="apple-touch-icon" href="icon-192.png">
+    <link rel="stylesheet" href="styles.css">
     <title>Vale Flux Control - Simulador Financeiro</title>
-    <style>
-        :root {
-            --bg-color: #0f0f0f;
-            --card-bg: #1a1a1a;
-            --primary: #bb86fc;
-            --secondary: #03dac6;
-            --text-main: #ffffff;
-            --text-dim: #a0a0a0;
-            --danger: #cf6679;
-            --surface: #2c2c2c;
-            --accent: #ffeb3b;
-        }
-
-        * {
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            overflow: hidden;
-        }
-
-        .header {
-            display: flex;
-            align-items: center;
-            padding: 12px 15px;
-            background: var(--card-bg);
-            border-bottom: 1px solid #333;
-            z-index: 10;
-        }
-
-        .grip-btn {
-            background: none;
-            border: none;
-            color: var(--primary);
-            font-size: 24px;
-            cursor: pointer;
-            padding: 5px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .title {
-            margin-left: 12px;
-            font-size: 1.1rem;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
-            color: var(--primary);
-        }
-
-        #side-menu {
-            position: fixed;
-            left: 0;
-            top: 0;
-            width: 85%;
-            max-width: 320px;
-            height: 100%;
-            background: var(--card-bg);
-            box-shadow: 10px 0 30px rgba(0, 0, 0, 0.9);
-            transform: translateX(-100%);
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            z-index: 1001;
-            padding: 25px;
-            overflow-y: auto;
-        }
-
-        #side-menu.active {
-            transform: translateX(0);
-        }
-
-        .overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(4px);
-            z-index: 1000;
-        }
-
-        .container {
-            padding: 15px;
-            flex: 1;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .main-card {
-            background: var(--surface);
-            border-radius: 16px;
-            padding: 20px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-            border: 1px solid #3d3d3d;
-        }
-
-        .card-entry {
-            border-left: 5px solid var(--secondary);
-        }
-
-        .card-result {
-            background: linear-gradient(145deg, #2c2c2c, #1e1e1e);
-            border: 1px solid var(--primary);
-            text-align: center;
-        }
-
-        .label-destaque {
-            color: var(--text-dim);
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            margin-bottom: 10px;
-            display: block;
-        }
-
-        .input-grande {
-            background: transparent;
-            border: none;
-            color: var(--secondary);
-            font-size: 2.2rem;
-            font-weight: 800;
-            width: 100%;
-            padding: 0;
-            outline: none;
-        }
-
-        .divider {
-            margin: 15px 0;
-            border-top: 1px solid #444;
-            padding-top: 15px;
-        }
-
-        .row-recebido {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .row-recebido span {
-            font-size: 0.85rem;
-            color: var(--text-dim);
-        }
-
-        .resultado-texto {
-            color: var(--accent);
-            font-size: 3.5rem;
-            font-weight: 900;
-            text-shadow: 0 0 15px rgba(255, 235, 59, 0.2);
-            line-height: 1;
-            margin-bottom: 5px;
-        }
-
-        .saldo-livre-valor {
-            color: var(--secondary);
-            font-size: 1.4rem;
-            font-weight: 700;
-        }
-
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 44px;
-            height: 24px;
-        }
-
-        .switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #444;
-            transition: .4s;
-            border-radius: 24px;
-        }
-
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 18px;
-            width: 18px;
-            left: 3px;
-            bottom: 3px;
-            background-color: white;
-            transition: .4s;
-            border-radius: 50%;
-        }
-
-        input:checked+.slider {
-            background-color: var(--primary);
-        }
-
-        input:checked+.slider:before {
-            transform: translateX(20px);
-        }
-
-        details {
-            background: #111;
-            border-radius: 12px;
-            overflow: hidden;
-            border: 1px solid #222;
-        }
-
-        summary {
-            padding: 12px 15px;
-            font-size: 0.8rem;
-            color: var(--primary);
-            cursor: pointer;
-            list-style: none;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-weight: 600;
-        }
-
-        summary::after {
-            content: '+';
-            font-size: 1.2rem;
-        }
-
-        details[open] summary::after {
-            content: '-';
-        }
-
-        .details-content {
-            padding: 0 15px 15px 15px;
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 0.75rem;
-            color: var(--text-dim);
-            line-height: 1.6;
-        }
-
-        .details-content p {
-            margin: 4px 0;
-            border-bottom: 1px solid #1a1a1a;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .input-group {
-            margin-bottom: 18px;
-        }
-
-        .input-group label {
-            display: block;
-            margin-bottom: 6px;
-            color: var(--secondary);
-            font-size: 0.7rem;
-            text-transform: uppercase;
-        }
-
-        .input-with-button {
-            display: flex;
-            gap: 8px;
-        }
-
-        .btn-refresh {
-            background: var(--surface);
-            border: 1px solid #444;
-            color: var(--primary);
-            border-radius: 8px;
-            padding: 0 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .btn-refresh:active {
-            transform: rotate(180deg);
-            background: #333;
-        }
-
-        input[type="text"],
-        input[type="date"] {
-            width: 100%;
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid #444;
-            background: var(--surface);
-            color: white;
-            outline: none;
-        }
-
-        .input-manual {
-            border-color: var(--accent) !important;
-            color: var(--accent) !important;
-        }
-
-        .simulation-alert {
-            background: #332200;
-            color: #ffcc00;
-            padding: 6px;
-            border-radius: 8px;
-            font-size: 0.65rem;
-            text-align: center;
-            border: 1px solid #664400;
-            font-weight: bold;
-        }
-
-        .menu-footer {
-            margin-top: 30px;
-            font-size: 0.65rem;
-            color: #555;
-            text-align: center;
-        }
-    </style>
 </head>
 
 <body>
 
     <div class="header">
-        <button class="grip-btn" onclick="toggleMenu()">☰</button>
+        <button class="grip-btn" id="btn-grip">☰</button>
         <div class="title" id="app-name">Vale Flux Control</div>
     </div>
 
-    <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
+    <div class="overlay" id="overlay"></div>
 
     <nav id="side-menu">
         <h3>AJUSTES</h3>
 
         <div class="input-group">
             <label>Data de Referência</label>
-            <input type="date" id="dataReferencia" onchange="saveAndCalc()">
+            <input type="date" id="dataReferencia">
         </div>
 
         <div class="input-group">
-            <label>Vale Refeição (R$)</label>
-            <input type="text" id="vale" value="R$ 1.173,26" inputmode="numeric"
-                oninput="handleCurrencyInput(this, true)">
+            <label>Vale Alimentação (R$)</label>
+            <input type="text" id="vale" value="R$ 1.173,26" inputmode="numeric">
         </div>
 
         <div class="input-group">
-            <label>Cesta Básica (R$)</label>
-            <input type="text" id="cesta" value="R$ 924,47" inputmode="numeric"
-                oninput="handleCurrencyInput(this, true)">
+            <label>Vale Cesta (R$)</label>
+            <input type="text" id="cesta" value="R$ 924,47" inputmode="numeric">
         </div>
 
         <div class="input-group">
             <label>Reserva de Segurança (R$)</label>
-            <input type="text" id="reserva" value="R$ 1.500,00" inputmode="numeric" oninput="handleCurrencyInput(this)">
+            <input type="text" id="reserva" value="R$ 1.500,00" inputmode="numeric">
         </div>
 
         <div class="input-group">
             <label>Custo Diário (R$)</label>
             <div class="input-with-button">
-                <input type="text" id="custoDiarioConfig" value="R$ 0,00" inputmode="numeric"
-                    oninput="handleCustoManual(this)">
-                <button class="btn-refresh" onclick="resetCustoDiario()" title="Recalcular Automático">
+                <input type="text" id="custoDiarioConfig" value="R$ 0,00" inputmode="numeric">
+                <button class="btn-refresh" id="btn-refresh-custo" title="Recalcular Automático">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
                         stroke-linecap="round" stroke-linejoin="round">
                         <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.3" />
@@ -398,14 +69,18 @@
 
         <section class="main-card card-entry">
             <span class="label-destaque">Saldo Atual Disponível</span>
-            <input type="text" id="saldo" class="input-grande" value="R$ 0,00" inputmode="numeric"
-                oninput="handleCurrencyInput(this)">
+            <div class="input-with-button">
+                <input type="text" id="saldo" class="input-grande" value="R$ 0,00" inputmode="numeric">
+                <button class="btn-subtract" id="btn-open-abate" title="Deduzir gasto">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                </button>
+            </div>
 
             <div class="divider">
                 <div class="row-recebido">
                     <span>Benefício já recebido este mês?</span>
                     <label class="switch">
-                        <input type="checkbox" id="recebido" onchange="handleRecebidoChange()">
+                        <input type="checkbox" id="recebido">
                         <span class="slider"></span>
                     </label>
                 </div>
@@ -438,281 +113,19 @@
 
     </main>
 
-    <script>
-        let isManualCusto = false;
-        let internalData = {
-            ultimoAcesso: null,
-            diaAtual: null,
-            proximoCorte: null,
-            diasCorte: 0,
-            diasCompra: 0,
-            valorDiaCompra: 0
-        };
+    <div id="modal-abate" class="modal-overlay">
+        <div class="modal-content">
+            <span class="label-destaque" style="color: var(--danger); font-size: 0.9rem;">Registrar Gasto</span>
+            <input type="text" id="valorAbate" class="input-modal" placeholder="R$ 0,00" inputmode="numeric">
+            
+            <div class="modal-actions">
+                <button id="btn-confirm-abate" class="btn-modal confirm">Confirmar</button>
+                <button id="btn-cancel-abate" class="btn-modal cancel">Cancelar</button>
+            </div>
+        </div>
+    </div>
 
-        function getRefDate() {
-            const inputDate = document.getElementById('dataReferencia').value;
-            if (!inputDate) return new Date();
-            const parts = inputDate.split('-');
-            return new Date(parts[0], parts[1] - 1, parts[2]);
-        }
-
-        function getTodayString() {
-            const now = new Date();
-            return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-        }
-
-        function getRefDateString() {
-            const date = getRefDate();
-            return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-        }
-
-        function parseCurrency(str) {
-            if (!str) return 0;
-            return parseFloat(str.replace(/[^\d,]/g, '').replace(',', '.')) || 0;
-        }
-
-        function formatCurrencyBR(value) {
-            return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
-        }
-
-        function formatDateToBR(dateStr) {
-            if (!dateStr || dateStr.length !== 10) return "--";
-            const [year, month, day] = dateStr.split('-');
-            return `${day}/${month}/${year}`;
-        }
-
-        function toggleMenu() {
-            const menu = document.getElementById('side-menu');
-            const overlay = document.getElementById('overlay');
-            const isOpen = menu.classList.contains('active');
-            menu.classList.toggle('active', !isOpen);
-            overlay.style.display = !isOpen ? 'block' : 'none';
-        }
-
-        function handleCurrencyInput(input, triggersAutoMode = false) {
-            let value = input.value.replace(/\D/g, "");
-            if (value === "") value = "0";
-            input.value = formatCurrencyBR(parseFloat(value) / 100);
-
-            if (triggersAutoMode) {
-                resetCustoDiario();
-            } else {
-                saveAndCalc();
-            }
-        }
-
-        function handleCustoManual(input) {
-            let value = input.value.replace(/\D/g, "");
-            if (value === "") value = "0";
-            input.value = formatCurrencyBR(parseFloat(value) / 100);
-
-            isManualCusto = true;
-            input.classList.add('input-manual');
-            saveAndCalc();
-        }
-
-        function handleRecebidoChange() {
-            resetCustoDiario();
-        }
-
-        function resetCustoDiario() {
-            isManualCusto = false;
-            document.getElementById('custoDiarioConfig').classList.remove('input-manual');
-            saveAndCalc();
-        }
-
-        function getDaysInMonth(year, month) {
-            return new Date(year, month + 1, 0).getDate();
-        }
-
-        function getPreviousWorkDay(year, month) {
-            let targetDate = new Date(year, month, 19);
-            while (targetDate.getDay() === 0 || targetDate.getDay() === 6) {
-                targetDate.setDate(targetDate.getDate() - 1);
-            }
-            return targetDate;
-        }
-
-        function calculateNextCorte(currentState) {
-            const isRecebido = currentState !== undefined ? currentState : document.getElementById('recebido').checked;
-            const refDate = getRefDate();
-            let targetYear = refDate.getFullYear();
-            let targetMonth = refDate.getMonth();
-
-            if (isRecebido) {
-                targetMonth += 1;
-                if (targetMonth > 11) { targetMonth = 0; targetYear += 1; }
-            }
-
-            const resultDate = getPreviousWorkDay(targetYear, targetMonth);
-            return `${resultDate.getFullYear()}-${String(resultDate.getMonth() + 1).padStart(2, '0')}-${String(resultDate.getDate()).padStart(2, '0')}`;
-        }
-
-        function updateDiasCorte() {
-            if (!internalData.proximoCorte) return;
-            const refDate = getRefDate();
-            refDate.setHours(0, 0, 0, 0);
-            const [year, month, day] = internalData.proximoCorte.split('-').map(Number);
-            const dataCorte = new Date(year, month - 1, day);
-            dataCorte.setHours(0, 0, 0, 0);
-            internalData.diasCorte = Math.ceil((dataCorte - refDate) / (1000 * 60 * 60 * 24));
-        }
-
-        function updateDiasCompra() {
-            const refDateStr = getRefDateString();
-            const refDate = getRefDate();
-            if (!internalData.proximoCorte) return;
-
-            if (refDateStr < internalData.proximoCorte) {
-                let m = refDate.getMonth() - 1;
-                let y = refDate.getFullYear();
-                if (m < 0) { m = 11; y--; }
-                internalData.diasCompra = getDaysInMonth(y, m);
-            } else {
-                internalData.diasCompra = getDaysInMonth(refDate.getFullYear(), refDate.getMonth());
-            }
-        }
-
-        function updateValorDiaCompra() {
-            if (!isManualCusto) {
-                const vale = parseCurrency(document.getElementById('vale').value);
-                const cesta = parseCurrency(document.getElementById('cesta').value);
-                internalData.valorDiaCompra = internalData.diasCompra > 0 ? (vale + cesta) / internalData.diasCompra : 0;
-                document.getElementById('custoDiarioConfig').value = formatCurrencyBR(internalData.valorDiaCompra);
-            } else {
-                internalData.valorDiaCompra = parseCurrency(document.getElementById('custoDiarioConfig').value);
-            }
-        }
-
-        function calculateFinalResults() {
-            const saldo = parseCurrency(document.getElementById('saldo').value);
-            const reserva = parseCurrency(document.getElementById('reserva').value);
-            const valorDia = internalData.valorDiaCompra;
-            const diasCorte = internalData.diasCorte;
-
-            if (valorDia === 0) {
-                document.getElementById('diasRestantes').innerText = "0.00";
-                document.getElementById('saldoLivre').innerText = "R$ 0,00";
-                return;
-            }
-
-            const diasRestantes = ((saldo - reserva) / valorDia) - diasCorte;
-
-            document.getElementById('diasRestantes').innerText = diasRestantes.toFixed(2);
-
-            if (diasRestantes > 0) {
-                const saldoLivre = valorDia * diasRestantes;
-                document.getElementById('saldoLivre').innerText = formatCurrencyBR(saldoLivre);
-                document.getElementById('container-saldo-livre').style.opacity = "1";
-            } else {
-                document.getElementById('saldoLivre').innerText = "R$ 0,00";
-                document.getElementById('container-saldo-livre').style.opacity = "0.4";
-            }
-        }
-
-        function applyBusinessRules() {
-            const refDate = getRefDate();
-            const refDateStr = getRefDateString();
-            const realTodayStr = getTodayString();
-
-            document.getElementById('sim-indicator').style.display = (refDateStr !== realTodayStr) ? 'block' : 'none';
-
-            const lastAccessStr = internalData.ultimoAcesso || refDateStr;
-            const lastParts = lastAccessStr.split('-');
-            const checkboxRecebido = document.getElementById('recebido');
-
-            if (refDate.getFullYear() > parseInt(lastParts[0]) || refDate.getMonth() > (parseInt(lastParts[1]) - 1)) {
-                checkboxRecebido.checked = false;
-            }
-
-            internalData.proximoCorte = calculateNextCorte(checkboxRecebido.checked);
-
-            if (refDateStr >= internalData.proximoCorte) {
-                checkboxRecebido.checked = true;
-                internalData.proximoCorte = calculateNextCorte(true);
-            }
-
-            updateDiasCorte();
-            updateDiasCompra();
-            updateValorDiaCompra();
-        }
-
-        function saveAndCalc() {
-            internalData.proximoCorte = calculateNextCorte();
-            updateDiasCorte();
-            updateDiasCompra();
-            updateValorDiaCompra();
-            calculateFinalResults();
-            saveData();
-            updateDisplay();
-        }
-
-        function updateDisplay() {
-            document.getElementById('label-acesso').innerText = formatDateToBR(internalData.ultimoAcesso);
-            document.getElementById('label-dia-atual').innerText = internalData.diaAtual;
-            document.getElementById('label-proximo-corte').innerText = formatDateToBR(internalData.proximoCorte);
-            document.getElementById('label-corte').innerText = internalData.diasCorte;
-            document.getElementById('label-compra').innerText = internalData.diasCompra;
-            document.getElementById('label-valor-dia-compra').innerText = formatCurrencyBR(internalData.valorDiaCompra);
-        }
-
-        function saveData() {
-            const data = {
-                vale: document.getElementById('vale').value,
-                cesta: document.getElementById('cesta').value,
-                reserva: document.getElementById('reserva').value,
-                saldo: document.getElementById('saldo').value,
-                recebido: document.getElementById('recebido').checked,
-                custoDiarioManual: document.getElementById('custoDiarioConfig').value,
-                isManualCusto: isManualCusto,
-                ultimoAcesso: internalData.ultimoAcesso
-            };
-            localStorage.setItem('valeFluxControl_v41', JSON.stringify(data));
-        }
-
-        function loadData() {
-            const saved = localStorage.getItem('valeFluxControl_v41');
-            const todayStr = getTodayString();
-
-            // Forçamos sempre o input de data para HOJE no carregamento
-            document.getElementById('dataReferencia').value = todayStr;
-
-            if (saved) {
-                const data = JSON.parse(saved);
-                document.getElementById('vale').value = data.vale;
-                document.getElementById('cesta').value = data.cesta;
-                document.getElementById('reserva').value = data.reserva;
-                document.getElementById('saldo').value = data.saldo;
-                document.getElementById('recebido').checked = data.recebido;
-
-                isManualCusto = data.isManualCusto || false;
-                if (isManualCusto) {
-                    document.getElementById('custoDiarioConfig').value = data.custoDiarioManual;
-                    document.getElementById('custoDiarioConfig').classList.add('input-manual');
-                }
-
-                internalData.ultimoAcesso = data.ultimoAcesso || todayStr;
-            } else {
-                internalData.ultimoAcesso = todayStr;
-            }
-        }
-
-        window.onload = function () {
-            loadData();
-            internalData.diaAtual = getRefDate().getDate();
-            applyBusinessRules();
-            calculateFinalResults();
-            updateDisplay();
-            saveData();
-        };
-    </script>
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js');
-            });
-        }
-    </script>
+    <script src="script.js" type="module"></script>
 </body>
 
 </html>
