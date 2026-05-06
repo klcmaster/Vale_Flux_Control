@@ -160,7 +160,7 @@ function calculateFinalResults() {
     document.getElementById('diasRestantes').innerText = diasRestantes.toFixed(2);
 
     if (diasRestantes > 0) {
-        const saldoLivre = valorDia * diasRestantes;
+        const saldoLivre = (valorDia * diasRestantes) + valorDia;
         document.getElementById('saldoLivre').innerText = formatCurrencyBR(saldoLivre);
         document.getElementById('container-saldo-livre').style.opacity = "1";
     } else {
@@ -216,6 +216,9 @@ function updateDisplay() {
 }
 
 function saveData() {
+    // Captura a data do momento exato do salvamento (saída)
+    const dataSaida = getTodayString();
+
     const data = {
         vale: document.getElementById('vale').value,
         cesta: document.getElementById('cesta').value,
@@ -224,7 +227,7 @@ function saveData() {
         recebido: document.getElementById('recebido').checked,
         custoDiarioManual: document.getElementById('custoDiarioConfig').value,
         isManualCusto: isManualCusto,
-        ultimoAcesso: internalData.ultimoAcesso
+        ultimoAcesso: dataSaida // Atualiza com a data de "agora"
     };
     localStorage.setItem('valeFluxControl_v41', JSON.stringify(data));
 }
@@ -291,7 +294,7 @@ window.onload = function () {
     applyBusinessRules();
     calculateFinalResults();
     updateDisplay();
-    saveData();
+    //saveData();
     // Adiciona EventListeners para eventos antes inline
     document.getElementById('btn-grip').addEventListener('click', toggleMenu);
     document.getElementById('overlay').addEventListener('click', toggleMenu);
@@ -328,6 +331,13 @@ window.onload = function () {
     // Fechar ao clicar fora do conteúdo branco do modal
     document.getElementById('modal-abate').addEventListener('click', (e) => {
         if (e.target.id === 'modal-abate') toggleAbate(false);
+    });
+
+    //Captura o fechamento/saída do app[cite: 2]
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'hidden') {
+            saveData(); // Salva tudo, incluindo o novo 'ultimoAcesso'[cite: 2]
+        }
     });
 };
 
