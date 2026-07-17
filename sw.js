@@ -1,4 +1,4 @@
-const CACHE_NAME = 'valeflux-v1.1';
+const CACHE_NAME = 'valeflux-v2';
 const ASSETS = [
   './',
   './index.html',
@@ -37,3 +37,5 @@ self.addEventListener('fetch', (event) => {
     })
   );
 });
+
+export { CACHE_NAME };

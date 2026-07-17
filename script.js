@@ -1,3 +1,5 @@
+import { CACHE_NAME } from './sw.js';
+
 let isManualCusto = false;
 let internalData = {
     ultimoAcesso: null,
@@ -117,7 +119,7 @@ function updateDiasCorte() {
     internalData.diasCorte = Math.ceil((dataCorte - refDate) / (1000 * 60 * 60 * 24));
 }
 
-function updateDiasCompra() {
+/*function updateDiasCompra() {
     const refDateStr = getRefDateString();
     const refDate = getRefDate();
     if (!internalData.proximoCorte) return;
@@ -130,6 +132,33 @@ function updateDiasCompra() {
     } else {
         internalData.diasCompra = getDaysInMonth(refDate.getFullYear(), refDate.getMonth());
     }
+}*/
+
+function updateDiasCompra() {
+    if (!internalData.proximoCorte) return;
+
+    const checkboxRecebido = document.getElementById('recebido').checked;
+    const refDate = getRefDate();
+    
+    // 1. Descobre o ano e mês base do Próximo Corte (Fim do Período)
+    let targetYear = refDate.getFullYear();
+    let targetMonth = refDate.getMonth();
+    if (checkboxRecebido) {
+        targetMonth += 1;
+        if (targetMonth > 11) { targetMonth = 0; targetYear += 1; }
+    }
+    const dataFimCorte = getPreviousWorkDay(targetYear, targetMonth);
+    dataFimCorte.setHours(0, 0, 0, 0);
+
+    // 2. Descobre o ano e mês base do Corte Anterior (Início do Período)
+    let prevMonth = targetMonth - 1;
+    let prevYear = targetYear;
+    if (prevMonth < 0) { prevMonth = 11; prevYear--; }
+    const dataInicioCorte = getPreviousWorkDay(prevYear, prevMonth);
+    dataInicioCorte.setHours(0, 0, 0, 0);
+
+    // 3. A diferença matemática pura entre os dois marcos determina o tamanho estável do período
+    internalData.diasCompra = Math.round((dataFimCorte - dataInicioCorte) / (1000 * 60 * 60 * 24));
 }
 
 function updateValorDiaCompra() {
@@ -155,12 +184,12 @@ function calculateFinalResults() {
         return;
     }
 
-    const diasRestantes = ((saldo - reserva) / valorDia) - diasCorte;
+    const diasRestantes = ((saldo - reserva) / valorDia) - diasCorte+1;
 
     document.getElementById('diasRestantes').innerText = diasRestantes.toFixed(2);
 
     if (diasRestantes > 0) {
-        const saldoLivre = (valorDia * diasRestantes) + valorDia;
+        const saldoLivre = (valorDia * diasRestantes);
         document.getElementById('saldoLivre').innerText = formatCurrencyBR(saldoLivre);
         document.getElementById('container-saldo-livre').style.opacity = "1";
     } else {
@@ -189,6 +218,11 @@ function applyBusinessRules() {
     if (refDateStr >= internalData.proximoCorte) {
         checkboxRecebido.checked = true;
         internalData.proximoCorte = calculateNextCorte(true);
+        let saldo = document.getElementById('saldo').value
+        const vale = document.getElementById('vale').value
+        const cesta = document.getElementById('cesta').value
+        saldo = parseCurrency(saldo) + parseCurrency(vale) + parseCurrency(cesta);
+        document.getElementById('saldo').value = formatCurrencyBR(saldo);
     }
 
     updateDiasCorte();
@@ -229,11 +263,11 @@ function saveData() {
         isManualCusto: isManualCusto,
         ultimoAcesso: dataSaida // Atualiza com a data de "agora"
     };
-    localStorage.setItem('valeFluxControl_v41', JSON.stringify(data));
+    localStorage.setItem(CACHE_NAME, JSON.stringify(data));
 }
 
 function loadData() {
-    const saved = localStorage.getItem('valeFluxControl_v41');
+    const saved = localStorage.getItem(CACHE_NAME);
     const todayStr = getTodayString();
 
     // Forçamos sempre o input de data para HOJE no carregamento
